@@ -1,0 +1,125 @@
+*{
+   
+    box-sizing:border-box;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  /* MAIN CONTAINER */
+  
+  .signup-container{
+    display:flex;
+    height:97vh;
+    width: 100%;
+
+  }
+  
+  /* LEFT IMAGE (FIXED WIDTH) */
+  
+  .signup-left{
+    width:1100px;          /* fixed width */
+    min-width:1100px;      /* prevents shrinking */
+    background-image:url("https://wallpapers.com/images/hd/website-background-a6wbhti5rhqieecp.jpg");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+  }
+  
+  /* RIGHT FORM AREA */
+  
+  .signup-right{
+    flex:1;               /* take remaining space */
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:50px;
+    background:rgb(58, 58, 58);
+
+    
+  }
+  
+  /* FORM BOX */
+  
+  .form-box{
+    width:360px;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+  }
+  
+  .form-box h2{
+    margin-bottom:10px;
+    font-size:26px;
+  }
+  
+  .subtitle{
+    font-size:14px;
+    color:#777;
+    margin-bottom:20px;
+  }
+  
+  form label{
+    font-size:14px;
+    margin-top:10px;
+    display:block;
+    font-weight: bold;
+  }
+  
+  form input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:12px;
+    border:1px solid #ddd;
+    border-radius:6px;
+  }
+  
+  .signup-btn{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:6px;
+    background:#111;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+  }
+  
+  .signup-btn:hover{
+    background:#333;
+  }
+  
+  .divider{
+    text-align:center;
+    margin:20px 0;
+    color:#777;
+  }
+  
+  .google-btn{
+    width:100%;
+    padding:10px;
+    border:1px solid #ddd;
+    border-radius:6px;
+    background:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    cursor:pointer;
+  }
+  
+  .google-btn:hover{
+    background:#f1f1f1;
+  }
+  
+  .login-text{
+    text-align:center;
+    margin-top:20px;
+    font-size:14px;
+  }
+  
+  .login-text a{
+    text-decoration:none;
+    color:black;
+    font-weight:600;
+  }

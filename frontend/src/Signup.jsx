@@ -1,8 +1,44 @@
 import React from "react";
 import "./Signup.css";
 import { FcGoogle } from "react-icons/fc";
+import { useState } from "react";
 
 function Signup() {
+
+   const [formState,setFormState]=useState({
+    username:"",
+    email:"",
+    password:""
+   })
+   
+  const handleChange =(e)=>{
+     setFormState({
+      ...formState,
+      [e.target.name]:e.target.value
+     })
+  }
+  
+  const handleSubmit = async (e) =>{
+    e.preventDefault();
+
+   const resp= await fetch('http://localhost:3000/register',{
+    method:"POST",
+    headers:{
+      'content-Type':"application/json"
+    },
+    body: JSON.stringify(formState)
+   })
+
+   const response=await resp.json();
+   console.log(response)
+
+   setFormState({
+    username:"",
+    email:"",
+    password:""
+  });
+
+  }
   return (
     <div className="signup-container">
       
@@ -17,24 +53,33 @@ function Signup() {
           <h2>Create an account</h2>
           <p className="subtitle">Enter your details below to get started.</p>
 
-          <form>
+          <form onSubmit={handleSubmit}>
 
             <label>Username</label>
             <input
               type="text"
               placeholder="Enter Username"
+              name="username"
+              value={formState.username}
+              onChange={handleChange}
             />
 
             <label>Email</label>
             <input
               type="email"
               placeholder="Enter useremail"
+              name="email"
+              value={formState.email}
+              onChange={handleChange}
             />
 
             <label>Password</label>
             <input
               type="password"
               placeholder="Enter password"
+              name="password"
+              value={formState.password}
+              onChange={handleChange}
             />
 
             <button className="signup-btn">

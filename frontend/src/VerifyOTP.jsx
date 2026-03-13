@@ -1,6 +1,38 @@
-import React from "react";
+import React, { useState } from "react";
 
 const VerifyEmail = () => {
+  
+  const [otp,setOTP]= useState(new Array(6).fill(""));
+
+  const handleChange =(e,index)=>{
+    const value=e.target.value
+    if(/^\d*$/.test(value)){
+      const newOtp=[...otp];
+      newOtp[index]=value
+      setOTP(newOtp)
+    }
+
+    if(value && index < 5 ){
+      document.getElementById(`otp-${index+1}`).focus();
+    }
+  }
+
+  const handleOTP =async () =>{
+    const otpString=otp.join("");
+    const res=await fetch('http://localhost:3000/verify-otp',{
+      method:"POST",
+      headers:{
+        'content-type':'application/json'
+      },
+      body:JSON.stringify({
+        otp:otpString
+      })
+    })
+    const data = await res.json();
+    console.log(data);
+    alert(data.message);
+  }
+  
   return (
     <div style={styles.page}>
       <div style={styles.card}>
@@ -15,15 +47,23 @@ const VerifyEmail = () => {
         </p>
 
         <div style={styles.otpContainer}>
-          <input type="text" maxLength="1" style={styles.otpInput} />
-          <input type="text" maxLength="1" style={styles.otpInput} />
-          <input type="text" maxLength="1" style={styles.otpInput} />
-          <input type="text" maxLength="1" style={styles.otpInput} />
-          <input type="text" maxLength="1" style={styles.otpInput} />
-          <input type="text" maxLength="1" style={styles.otpInput} />
+          {
+            otp.map((value,index)=>(
+              <input 
+                key={index}
+                id={`otp-${index}`}
+                maxLength='1'
+                value={value}
+                type="text"
+                onChange={(e)=>handleChange(e,index)}
+                style={styles.otpInput}
+              />
+            ))
+          }
+
         </div>
 
-        <button style={styles.verifyBtn}>
+        <button   onClick={handleOTP} style={styles.verifyBtn}>
           Verify Code
         </button>
 

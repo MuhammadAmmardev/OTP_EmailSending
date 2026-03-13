@@ -3,7 +3,9 @@ const nodemailer=require('nodemailer');
 const mongoose=require('mongoose');
 const otpRecord=require('./model/otpRecord')
 const app=express();
+const cors=require('cors')
 app.use(express.json())
+app.use(cors())
 
 mongoose.connect('mongodb://127.0.0.1:27017/OTP_Verification')
 .then(()=> console.log('Database connect successfully'))
@@ -35,9 +37,7 @@ async function sendOTP(email,otp){
 }
 
 
-app.post('/register',async (req,res)=>{
-    const {username,email,password}=req.body;
-    
+const handleOTP=async (email)=>{
     const otp=generateOTP();
     await sendOTP(email,otp)
    
@@ -45,10 +45,19 @@ app.post('/register',async (req,res)=>{
          email:email,
          otp:otp
     })
-    console.log(otp)
-    res.json({
-        message:"OTP send to email"
-    })
+    
+}
+
+app.post('/register',async (req,res)=>{
+    const {username,email,password}=req.body;
+    handleOTP(email)
+   
+})
+
+
+app.post('/verify-otp', (req,res)=>{
+   const {otp}=req.body
+   console.log(otp)
 })
 
 app.listen(3000,()=>{

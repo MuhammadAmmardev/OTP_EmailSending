@@ -2,6 +2,9 @@ import React from "react";
 import "./Signup.css";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
+import VerifyEmail from './VerifyOTP'
+
+
 
 function Signup() {
 
@@ -11,11 +14,20 @@ function Signup() {
     password:""
    })
    
+
+  // show OTP page
+  const [showOTP, setShowOTP] = useState(false);
+
+  // store email separately so OTP page always gets it
+  const [userEmail, setUserEmail] = useState("");
+
+
   const handleChange =(e)=>{
      setFormState({
       ...formState,
       [e.target.name]:e.target.value
      })
+
   }
   
   const handleSubmit = async (e) =>{
@@ -30,15 +42,31 @@ function Signup() {
    })
 
    const response=await resp.json();
-   console.log(response)
+   console.log(response.message)
+  const emailToVerify = formState.email; 
+  console.log("Email from formState:", emailToVerify);
+
+  setUserEmail(emailToVerify);
+   // show OTP page
+   setShowOTP(true);
+
 
    setFormState({
     username:"",
-    email:"",
+    email: "",
     password:""
   });
 
+
+
   }
+
+  
+  if(showOTP){
+    return <VerifyEmail email={userEmail} />
+   }
+
+
   return (
     <div className="signup-container">
       
@@ -82,7 +110,7 @@ function Signup() {
               onChange={handleChange}
             />
 
-            <button className="signup-btn">
+            <button className="signup-btn"  >
               Sign Up
             </button>
 

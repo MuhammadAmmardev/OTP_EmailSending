@@ -10,8 +10,8 @@ function App() {
 
   return (
     <>
-     <VerifyEmail />
-     {/* <Signup /> */}
+     {/* <VerifyEmail/> */}
+     <Signup />
     </>
   )
 }

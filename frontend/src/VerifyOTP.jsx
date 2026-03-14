@@ -1,8 +1,14 @@
-import React, { useState } from "react";
+import React, { useState ,useRef,useEffect} from "react";
 
-const VerifyEmail = () => {
-  
+const VerifyEmail = (props) => {
+ 
   const [otp,setOTP]= useState(new Array(6).fill(""));
+  const inputsRef = useRef([]);
+
+  useEffect(() => {
+    inputsRef.current[0]?.focus();
+  }, []);
+
 
   const handleChange =(e,index)=>{
     const value=e.target.value
@@ -13,24 +19,39 @@ const VerifyEmail = () => {
     }
 
     if(value && index < 5 ){
-      document.getElementById(`otp-${index+1}`).focus();
+      
+      if (value && index < 5) {
+        inputsRef.current[index + 1]?.focus();
+      }
     }
   }
 
+
+  const handleKeyDown= (e, index) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputsRef.current[index - 1]?.focus();
+    }
+  };
+
   const handleOTP =async () =>{
     const otpString=otp.join("");
+    console.log(props.email)
     const res=await fetch('http://localhost:3000/verify-otp',{
       method:"POST",
       headers:{
         'content-type':'application/json'
       },
       body:JSON.stringify({
-        otp:otpString
+       'otp':otpString,
+        'email':props.email
+      
       })
+
     })
+ 
     const data = await res.json();
     console.log(data);
-    alert(data.message);
+   
   }
   
   return (
@@ -51,11 +72,15 @@ const VerifyEmail = () => {
             otp.map((value,index)=>(
               <input 
                 key={index}
+                ref={(inputElement) => {
+                  inputsRef.current[index] = inputElement; // store this input in the array
+                }}
                 id={`otp-${index}`}
                 maxLength='1'
                 value={value}
                 type="text"
                 onChange={(e)=>handleChange(e,index)}
+                onKeyDown={(e) => handleKeyDown(e, index)}
                 style={styles.otpInput}
               />
             ))
@@ -126,6 +151,7 @@ const styles = {
     borderRadius: "6px",
     outline: "none",
   },
+  
 
   verifyBtn: {
     width: "100%",

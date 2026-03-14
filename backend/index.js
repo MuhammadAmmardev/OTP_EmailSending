@@ -4,6 +4,9 @@ const mongoose=require('mongoose');
 const otpRecord=require('./model/otpRecord')
 const app=express();
 const cors=require('cors')
+
+
+
 app.use(express.json())
 app.use(cors())
 
@@ -37,7 +40,10 @@ async function sendOTP(email,otp){
 }
 
 
-const handleOTP=async (email)=>{
+
+
+app.post('/register',async (req,res)=>{
+    const {username,email,password}=req.body;
     const otp=generateOTP();
     await sendOTP(email,otp)
    
@@ -46,18 +52,15 @@ const handleOTP=async (email)=>{
          otp:otp
     })
     
-}
-
-app.post('/register',async (req,res)=>{
-    const {username,email,password}=req.body;
-    handleOTP(email)
-   
+    res.json({
+        message:"OTP Generated Successfully"
+    })
 })
 
 
 app.post('/verify-otp', (req,res)=>{
-   const {otp}=req.body
-   console.log(otp)
+const {otp,email}=req.body;
+console.log(otp,email)
 })
 
 app.listen(3000,()=>{

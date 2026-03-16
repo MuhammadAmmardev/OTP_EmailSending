@@ -4,11 +4,24 @@ const VerifyEmail = (props) => {
  
   const [otp,setOTP]= useState(new Array(6).fill(""));
   const inputsRef = useRef([]);
+  const [displayError,setDisplayError]=useState();
 
+    const [timeLeft, setTimeLeft] = useState(60); // start from 60 seconds
+  
+    useEffect(() => {
+      if (timeLeft === 0) return; // stop when timer reaches 0
+  
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+  
+      return () => clearInterval(timer); // cleanup interval on unmount
+    }, [timeLeft]);
+ 
   useEffect(() => {
     inputsRef.current[0]?.focus();
   }, []);
-
+ 
 
   const handleChange =(e,index)=>{
     const value=e.target.value
@@ -35,28 +48,38 @@ const VerifyEmail = (props) => {
 
   const handleOTP =async () =>{
     const otpString=otp.join("");
-    console.log(props.email)
+
     const res=await fetch('http://localhost:3000/verify-otp',{
       method:"POST",
       headers:{
         'content-type':'application/json'
       },
       body:JSON.stringify({
-       'otp':otpString,
-        'email':props.email
+        otp:otpString,
+        userData:props.userData,
       
       })
 
     })
  
     const data = await res.json();
-    console.log(data);
+    console.log(data.message);
+    setDisplayError(data.message);
+    setTimeout(() => {
+      setDisplayError();
+    }, 1500);
+  
    
   }
+
   
   return (
     <div style={styles.page}>
+     
       <div style={styles.card}>
+      <div>
+      <p style={{color:'red'}}>OTP expires in: {timeLeft}s</p>
+    </div>
         <div style={styles.iconBox}>
           ✉️
         </div>
@@ -81,12 +104,20 @@ const VerifyEmail = (props) => {
                 type="text"
                 onChange={(e)=>handleChange(e,index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
+                onPaste={(e) => {
+                  const paste = e.clipboardData.getData("text").slice(0, 6);
+                  if (/^\d+$/.test(paste)) setOTP(paste.split(""));
+                }}
                 style={styles.otpInput}
               />
             ))
           }
 
         </div>
+
+        {
+        displayError?  <p style={{color:'red',fontSize:'16px'}}>{displayError}</p> :null 
+        }
 
         <button   onClick={handleOTP} style={styles.verifyBtn}>
           Verify Code

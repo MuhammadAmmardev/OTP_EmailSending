@@ -2,8 +2,10 @@ const express=require('express');
 const nodemailer=require('nodemailer');
 const mongoose=require('mongoose');
 const otpRecord=require('./model/otpRecord')
+const UserRecord=require('./model/UserRecord')
 const app=express();
-const cors=require('cors')
+const cors=require('cors');
+
 
 
 
@@ -25,7 +27,7 @@ async function sendOTP(email,otp){
         service:'gmail',
         auth:{
             user:'ammarkhan1018@gmail.com',
-            pass:'debqkgznmtoeofrk'
+            pass:'xtrtupvjyjqfsbyb'
         }
     });
 
@@ -58,9 +60,43 @@ app.post('/register',async (req,res)=>{
 })
 
 
-app.post('/verify-otp', (req,res)=>{
-const {otp,email}=req.body;
-console.log(otp,email)
+app.post('/verify-otp', async(req,res)=>{
+
+    const { otp, userData } = req.body; // get otp and userData object
+
+    const { username, email, password } = userData; // extract fields from userData
+
+const User=await UserRecord.findOne({email})
+if(User){
+     return res.json({
+     message:"User Already Registered"
+    })
+}
+
+const OTP=await otpRecord.findOne({email})
+
+if(!OTP){
+    return res.json({
+        message:"OTP expire or not find"
+    })
+}
+console.log(OTP.otp)
+if(OTP.otp !== otp){
+    return res.json({
+        message:"Invalid  OTP!!!"
+    })
+}
+
+const newUser=await UserRecord.create({
+    username,
+    email,
+    password
+})
+ 
+res.json({
+    message:"User Registerd Successfully",
+})
+
 })
 
 app.listen(3000,()=>{

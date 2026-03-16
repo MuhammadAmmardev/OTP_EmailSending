@@ -19,7 +19,7 @@ function Signup() {
   const [showOTP, setShowOTP] = useState(false);
 
   // store email separately so OTP page always gets it
-  const [userEmail, setUserEmail] = useState("");
+  const [userData, setUserData] = useState(null);
 
 
   const handleChange =(e)=>{
@@ -43,10 +43,9 @@ function Signup() {
 
    const response=await resp.json();
    console.log(response.message)
-  const emailToVerify = formState.email; 
-  console.log("Email from formState:", emailToVerify);
 
-  setUserEmail(emailToVerify);
+
+  setUserData(formState);
    // show OTP page
    setShowOTP(true);
 
@@ -63,7 +62,7 @@ function Signup() {
 
   
   if(showOTP){
-    return <VerifyEmail email={userEmail} />
+    return <VerifyEmail userData={userData} />
    }
 
 

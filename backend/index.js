@@ -68,7 +68,7 @@ app.post('/verify-otp', async(req,res)=>{
 
 const User=await UserRecord.findOne({email})
 if(User){
-     return res.json({
+     return res.status(400).json({
      message:"User Already Registered"
     })
 }
@@ -76,13 +76,13 @@ if(User){
 const OTP=await otpRecord.findOne({email})
 
 if(!OTP){
-    return res.json({
+    return res.status(400).json({
         message:"OTP expire or not find"
     })
 }
 console.log(OTP.otp)
 if(OTP.otp !== otp){
-    return res.json({
+    return res.status(400).json({
         message:"Invalid  OTP!!!"
     })
 }
@@ -93,9 +93,9 @@ const newUser=await UserRecord.create({
     password
 })
  
-res.json({
-    message:"User Registerd Successfully",
-})
+res.status(200).json({
+    message: "User Registered Successfully",
+});
 
 })
 

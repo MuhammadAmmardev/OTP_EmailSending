@@ -1,38 +1,44 @@
-import React, { useState ,useRef,useEffect} from "react";
+import React, { useState, useRef, useEffect } from "react";
+import Home from "./Home";
+import Signup from './Signup'
 
 const VerifyEmail = (props) => {
- 
-  const [otp,setOTP]= useState(new Array(6).fill(""));
-  const inputsRef = useRef([]);
-  const [displayError,setDisplayError]=useState();
 
-    const [timeLeft, setTimeLeft] = useState(60); // start from 60 seconds
-  
-    useEffect(() => {
-      if (timeLeft === 0) return; // stop when timer reaches 0
-  
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-  
-      return () => clearInterval(timer); // cleanup interval on unmount
-    }, [timeLeft]);
- 
+  const [otp, setOTP] = useState(new Array(6).fill(""));
+  const inputsRef = useRef([]);
+  const [displayError, setDisplayError] = useState();
+  const [page, setPage] = useState("verify"); 
+  const [loading,setLoading]=useState(false);
+
+  const [timeLeft, setTimeLeft] = useState(60); // start from 60 seconds
+
+  useEffect(() => {
+    if (timeLeft === 0){
+      setPage("signup");
+    } // stop when timer reaches 0
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer); // cleanup interval on unmount
+  }, [timeLeft]);
+
   useEffect(() => {
     inputsRef.current[0]?.focus();
   }, []);
- 
 
-  const handleChange =(e,index)=>{
-    const value=e.target.value
-    if(/^\d*$/.test(value)){
-      const newOtp=[...otp];
-      newOtp[index]=value
+
+  const handleChange = (e, index) => {
+    const value = e.target.value
+    if (/^\d*$/.test(value)) {
+      const newOtp = [...otp];
+      newOtp[index] = value
       setOTP(newOtp)
     }
 
-    if(value && index < 5 ){
-      
+    if (value && index < 5) {
+
       if (value && index < 5) {
         inputsRef.current[index + 1]?.focus();
       }
@@ -40,46 +46,87 @@ const VerifyEmail = (props) => {
   }
 
 
-  const handleKeyDown= (e, index) => {
+  const handleKeyDown = (e, index) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
     }
   };
 
-  const handleOTP =async () =>{
-    const otpString=otp.join("");
+  const handleOTP = async () => {
+    const otpString = otp.join("");
+    setLoading(true);
 
-    const res=await fetch('http://localhost:3000/verify-otp',{
+    const res = await fetch('http://localhost:3000/verify-otp', {
+      method: "POST",
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        otp: otpString,
+        userData: props.userData,
+
+      })
+
+    })
+   
+
+    const data = await res.json();
+    if (res.status !== 200) {
+      // ✅ delay error display so "Verifying..." shows first
+      setTimeout(() => {
+        setLoading(false);
+        setDisplayError(data.message);
+        setTimeout(() => setDisplayError(), 2000); // hide error after 2s
+      }, 2000); // 0.8s delay
+    } else {
+      setTimeout(()=>{
+        setLoading(false);
+        setPage("home");
+      },2000)
+      
+    }
+  }
+
+  const resendOTP = async() =>{
+    
+    const response=await fetch('http://localhost:3000/register',{
       method:"POST",
       headers:{
         'content-type':'application/json'
       },
       body:JSON.stringify({
-        otp:otpString,
-        userData:props.userData,
-      
+        username:props.userData.username,
+        email:props.userData.email,
+        password:props.userData.password
       })
-
     })
- 
-    const data = await res.json();
-    console.log(data.message);
-    setDisplayError(data.message);
-    setTimeout(() => {
-      setDisplayError();
-    }, 1500);
-  
-   
+    const resp=await response.json();
+    console.log(resp.message)
   }
 
+
   
+  if (page === "signup") {
+    return <Signup />;
+  }
+
+  if (page === "home") {
+    return <Home />;
+  }
+
   return (
     <div style={styles.page}>
-     
+    
+
       <div style={styles.card}>
-      <div>
-      <p style={{color:'red'}}>OTP expires in: {timeLeft}s</p>
-    </div>
+        <div>
+          <p>
+            <span style={{ color: "black" }}>OTP expires in: </span>
+            <span style={{ color: "red"  }}>
+              {timeLeft}s
+            </span>
+          </p>
+        </div>
         <div style={styles.iconBox}>
           ✉️
         </div>
@@ -92,8 +139,8 @@ const VerifyEmail = (props) => {
 
         <div style={styles.otpContainer}>
           {
-            otp.map((value,index)=>(
-              <input 
+            otp.map((value, index) => (
+              <input
                 key={index}
                 ref={(inputElement) => {
                   inputsRef.current[index] = inputElement; // store this input in the array
@@ -102,7 +149,7 @@ const VerifyEmail = (props) => {
                 maxLength='1'
                 value={value}
                 type="text"
-                onChange={(e)=>handleChange(e,index)}
+                onChange={(e) => handleChange(e, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
                 onPaste={(e) => {
                   const paste = e.clipboardData.getData("text").slice(0, 6);
@@ -116,16 +163,16 @@ const VerifyEmail = (props) => {
         </div>
 
         {
-        displayError?  <p style={{color:'red',fontSize:'16px'}}>{displayError}</p> :null 
+          displayError ? <p style={{ color: 'red', fontSize: '16px' }}>{displayError}</p> : null
         }
 
-        <button   onClick={handleOTP} style={styles.verifyBtn}>
-          Verify Code
+        <button onClick={handleOTP} style={styles.verifyBtn} disabled={loading}>
+        {loading ? "Verify Code...": "Verify Code"}
         </button>
 
         <p style={styles.resendText}>
           Didn't receive the code?{" "}
-          <span style={styles.resendLink}>Resend OTP</span>
+          <span style={styles.resendLink} onClick={()=>resendOTP()}>Resend OTP</span>
         </p>
       </div>
     </div>
@@ -182,7 +229,7 @@ const styles = {
     borderRadius: "6px",
     outline: "none",
   },
-  
+
 
   verifyBtn: {
     width: "100%",
@@ -207,6 +254,7 @@ const styles = {
     cursor: "pointer",
     fontWeight: "500",
   },
+
 };
 
 export default VerifyEmail;

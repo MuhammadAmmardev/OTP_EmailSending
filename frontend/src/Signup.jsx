@@ -13,13 +13,10 @@ function Signup() {
     email:"",
     password:""
    })
-   
 
-  // show OTP page
   const [showOTP, setShowOTP] = useState(false);
-
-  // store email separately so OTP page always gets it
   const [userData, setUserData] = useState(null);
+  const [loading,setLoading]=useState(false);
 
 
   const handleChange =(e)=>{
@@ -31,8 +28,8 @@ function Signup() {
   }
   
   const handleSubmit = async (e) =>{
-    e.preventDefault();
-
+   e.preventDefault();
+   setLoading(true);
    const resp= await fetch('http://localhost:3000/register',{
     method:"POST",
     headers:{
@@ -45,8 +42,8 @@ function Signup() {
    console.log(response.message)
 
 
-  setUserData(formState);
-   // show OTP page
+   setUserData(formState);
+   setLoading(false)
    setShowOTP(true);
 
 
@@ -89,6 +86,7 @@ function Signup() {
               name="username"
               value={formState.username}
               onChange={handleChange}
+              required
             />
 
             <label>Email</label>
@@ -98,6 +96,7 @@ function Signup() {
               name="email"
               value={formState.email}
               onChange={handleChange}
+              required
             />
 
             <label>Password</label>
@@ -107,10 +106,11 @@ function Signup() {
               name="password"
               value={formState.password}
               onChange={handleChange}
+              required
             />
 
             <button className="signup-btn"  >
-              Sign Up
+             {loading ? "Sign Up...":"Sign Up"} 
             </button>
 
           </form>
